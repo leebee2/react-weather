@@ -122,7 +122,7 @@ function App() {
             </div>
           </div>
         ) : (
-            <div className="location">
+            <div className="empty">
             Enter the weather.
           </div>)}
       </main>

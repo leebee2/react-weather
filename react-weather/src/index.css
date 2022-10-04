@@ -56,6 +56,10 @@ main {
   background-color: rgb(255,255,255,0.75);
 }
 
+.search-box .search-bar:hover {
+  font-size: 22px;
+}
+
 .location-box .location {
   color : #fff;
   font-size: 32px;
@@ -96,7 +100,7 @@ main {
 
 .weather-box .weather {
   color: #fff;
-  font-size: 50px;
+  font-size: 30px;
   font-weight: 700;
 
   text-shadow: 3px 3px rgba(50, 50, 70, 0.5);

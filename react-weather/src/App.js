@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const api = {
   key: 'ca19fef0c6e3e329aeb70050d11e3888',
@@ -8,6 +8,7 @@ const api = {
 function App() {
   const [query, setQuery] = useState('');
   const [weather, setWeather] = useState({});
+  const [searchData, setSearchData] = useState([]);
 
   const searchWeather = (e) => {
     if (e.key == "Enter") {
@@ -31,7 +32,7 @@ function App() {
         getSearchWeather(lat, lon);
       }
     } catch (error) {
-      debugger
+      console.log(error);
     }
   }
 
@@ -46,10 +47,23 @@ function App() {
       let result = await response.json();
 
       setWeather(result);
-      setQuery('');
+      cityLocalStorageList();
     } catch (error) {
       console.log(error);
     }
+  }
+
+  const cityLocalStorageList = () => {
+    let citySearch = localStorage.getItem('citySearch')
+    let search = citySearch == null ? [] : JSON.parse(citySearch);
+
+    search.push(query);
+    search = new Set(search);
+    search = [...search];
+
+    localStorage.setItem('citySearch', JSON.stringify(search));
+    setSearchData(search);
+    setQuery('');
   }
 
   const dateBuilder = (d) => {
@@ -66,6 +80,13 @@ function App() {
     return `${year} / ${month} / ${date}  ${day}`;
   }
 
+  useEffect(() => {
+    let citySearch = localStorage.getItem('citySearch')
+    let search = citySearch == null ? [] : JSON.parse(citySearch);
+
+    setSearchData(search);
+  }, [])
+
   return (
     <div className={(typeof weather.main != "undefined") ?
       (weather.main.temp > 16 ? 'app warm' : 'app')
@@ -76,10 +97,16 @@ function App() {
             type="text"
             className='search-bar'
             placeholder='Search...'
+            list="city"
             onChange={(e) => setQuery(e.target.value)}
+            onClick={(e) => setWeather([])}
             value={query}
             onKeyDown={(e) => searchWeather(e)}
           />
+          <datalist id="city">
+            {searchData.map((item, index) =>
+              <option value={item} key={index}></option>)}
+          </datalist>
         </div>
         {(typeof weather.main != "undefined") ? (
           <div>
@@ -91,10 +118,13 @@ function App() {
               <div className="temp">
                 {weather.main.temp}°C
               </div>
-              <div className="weather">{weather.weather[0].main}</div>
+              <div className="weather"> {weather.weather[0].main}</div>
             </div>
           </div>
-        ) : ('')}
+        ) : (
+            <div className="location">
+            Enter the weather.
+          </div>)}
       </main>
     </div>
   );

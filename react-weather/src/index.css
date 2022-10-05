@@ -68,7 +68,7 @@ main {
   margin: 0px 0px 0px 10px;
 
   cursor: pointer;
-  color: rgba(164, 164, 164, 0.5);
+  color: rgba(219, 219, 219, 0.5);
   vertical-align: middle;
 }
 
@@ -125,6 +125,7 @@ main {
   text-shadow: 3px 3px rgba(50, 50, 70, 0.5);
 }
 
+
 .location-box .date {
   color: #fff;
   font-size: 20px;
@@ -139,8 +140,9 @@ main {
 }
 
 .weather-box .temp {
-  position: relative;
-  display: inline-block;
+  /* position: relative;
+  display: inline-block; */
+  display: flex;
   margin: 30px auto;
   background-color: rgba(255, 255, 255, 0.2);
   border-radius: 16px;
@@ -152,8 +154,14 @@ main {
   width: 100%;
 
   text-shadow: 3px 6px rgba(50, 50, 70, 0.5);
-  text-align: center;
   box-shadow: 3px 6px rgba(0, 0, 0, 0.5);
+  justify-content: center;
+}
+
+.weather-box .weather-icon {
+  width: 100px;
+  color: #fff;
+  margin-right: 8px;
 }
 
 .weather-box .weather {

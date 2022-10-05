@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Progress from './Components/Progress';
 import SearchBar from './Components/SearchBar';
+import WeatherData from './Components/WeatherData';
 
 const api = {
   key: 'ca19fef0c6e3e329aeb70050d11e3888',
@@ -12,6 +13,7 @@ function App() {
   const [searchData, setSearchData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
+
   useEffect(() => {
     let citySearch = localStorage.getItem('citySearch')
     let search = citySearch == null ? [] : JSON.parse(citySearch);
@@ -19,8 +21,8 @@ function App() {
     setSearchData(search);
   }, [])
 
-
   /**
+   * @param {*} location 검색한 위치명
    * 도시 이름으로 바로 날씨 정보를 받아올 수 없어서 
    * 위도 경도를 먼저 받고 실행해야함
    */
@@ -45,6 +47,7 @@ function App() {
    * 
    * @param {*} lat 위도 
    * @param {*} lon 경도
+   * @param {*} location 검색한 위치명
    */
   const getSearchWeather = async (lat, lon, location = undefined) => {
     try {
@@ -62,6 +65,9 @@ function App() {
     }
   }
 
+  /**
+   * 현재 위치 정보로 날씨 검색
+   */
   const currentSearch = () => {
     setWeather([]);
     setIsLoading(true);
@@ -74,20 +80,12 @@ function App() {
     });
   }
 
-  const dateBuilder = (d) => {
-    let months = ['January', 'February', 'March',
-      'April', 'May', 'June', 'July', 'August', 'September',
-      'October', 'November', 'December']
-    let days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-    let day = days[d.getDay()];
-    let date = d.getDate();
-    let month = months[d.getMonth()];
-    let year = d.getFullYear();
-
-    return `${year} / ${month} / ${date}  ${day}`;
-  }
-
+  /**
+   * 
+   * @param {*} query 검색한 위치명
+   * 검색한 위치정보 local storage에 저장
+   */
   const cityLocalStorageList = (query) => {
     let citySearch = localStorage.getItem('citySearch')
     let search = citySearch == null ? [] : JSON.parse(citySearch);
@@ -113,24 +111,14 @@ function App() {
             searchData={searchData}
             setWeather={setWeather}
           />
-          {(typeof weather.main != "undefined") ? (
-            <div>
-              <div className="location-box">
-                <div className="location">{weather.name}, {weather.sys.country}</div>
-                <div className="date">{dateBuilder(new Date())}</div>
-              </div>
-              <div className="weather-box">
-                <div className="temp">
-                  {Math.round(weather.main.temp)}°C
-                </div>
-                <div className="weather"> {weather.weather[0].main}</div>
-              </div>
-            </div>
-          ) : (
+          {(typeof weather.main != "undefined") ?
+            <WeatherData weather={weather} />
+            :
             <div className="empty">
               Enter the weather.
-            </div>)}
-          {isLoading && <Progress open={true} close={true} />}
+            </div>
+          }
+          {isLoading && <Progress />}
         </main>
       </div>
     </>

@@ -142,26 +142,28 @@ main {
 .weather-box .temp {
   /* position: relative;
   display: inline-block; */
-  display: flex;
+  display: inline-block;
   margin: 30px auto;
   background-color: rgba(255, 255, 255, 0.2);
   border-radius: 16px;
   padding: 15px 25px;
 
   color: #fff;
-  font-size: 90px;
+  font-size: 78px;
   font-weight: 900;
   width: 100%;
 
   text-shadow: 3px 6px rgba(50, 50, 70, 0.5);
   box-shadow: 3px 6px rgba(0, 0, 0, 0.5);
   justify-content: center;
+  vertical-align: middle;
 }
 
 .weather-box .weather-icon {
   width: 100px;
   color: #fff;
   margin-right: 8px;
+  vertical-align: sub;
 }
 
 .weather-box .weather {

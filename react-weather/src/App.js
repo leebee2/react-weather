@@ -37,8 +37,11 @@ function App() {
         let lon = data[0].lon;
 
         getSearchWeather(lat, lon, query);
+      } else {
+        setIsLoading(false);
       }
     } catch (error) {
+      setIsLoading(false);
       console.log(error);
     }
   }

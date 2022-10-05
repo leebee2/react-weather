@@ -26,9 +26,7 @@ const WeatherData = ({ weather }) => {
             <div className="weather-box">
                 <div className="temp">
                     <img src={process.env.PUBLIC_URL + `/img/${weather.weather[0].icon}.png`} alt="weather" className='weather-icon'/>
-                    <div>
-                        {Math.round(weather.main.temp)}°C
-                    </div>
+                    {Math.round(weather.main.temp)}°C
                 </div>
                 {/* <div className="weather"> {weather.weather[0].main}</div> */}
             </div>

@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faLocationCrosshairs } from "@fortawesome/free-solid-svg-icons";
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 const api = {
   key: 'ca19fef0c6e3e329aeb70050d11e3888',
@@ -9,9 +12,11 @@ function App() {
   const [query, setQuery] = useState('');
   const [weather, setWeather] = useState({});
   const [searchData, setSearchData] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const searchWeather = (e) => {
     if (e.key == "Enter") {
+      setIsLoading(true);
       geoLocation();
     }
   }
@@ -41,16 +46,32 @@ function App() {
    * @param {*} lat 위도 
    * @param {*} lon 경도
    */
-  const getSearchWeather = async (lat, lon) => {
+  const getSearchWeather = async (lat, lon, location = undefined) => {
     try {
       let response = await fetch(`${api.baseUrl}data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${api.key}`)
       let result = await response.json();
 
       setWeather(result);
-      cityLocalStorageList();
+      setIsLoading(false);
+
+      if (location == undefined) 
+        cityLocalStorageList();
+      
     } catch (error) {
       console.log(error);
     }
+  }
+
+  const currentSearch = () => {
+    setWeather([]);
+    setIsLoading(true);
+
+    navigator.geolocation.getCurrentPosition((position) => {
+      let lat = position.coords.latitude;
+      let lon = position.coords.longitude;
+
+      getSearchWeather(lat, lon);
+    });
   }
 
   const cityLocalStorageList = () => {
@@ -88,45 +109,56 @@ function App() {
   }, [])
 
   return (
-    <div className={(typeof weather.main != "undefined") ?
-      (weather.main.temp > 16 ? 'app warm' : 'app')
-      : 'app'}>
-      <main>
-        <div className='search-box'>
-          <input
-            type="text"
-            className='search-bar'
-            placeholder='Search...'
-            list="city"
-            onChange={(e) => setQuery(e.target.value)}
-            onClick={(e) => setWeather([])}
-            value={query}
-            onKeyDown={(e) => searchWeather(e)}
-          />
-          <datalist id="city">
-            {searchData.map((item, index) =>
-              <option value={item} key={index}></option>)}
-          </datalist>
-        </div>
-        {(typeof weather.main != "undefined") ? (
-          <div>
-            <div className="location-box">
-              <div className="location">{weather.name}, {weather.sys.country}</div>
-              <div className="date">{dateBuilder(new Date())}</div>
-            </div>
-            <div className="weather-box">
-              <div className="temp">
-                {Math.round(weather.main.temp)}°C
-              </div>
-              <div className="weather"> {weather.weather[0].main}</div>
+    <>
+      <div className={(typeof weather.main != "undefined") ?
+        (weather.main.temp > 16 ? 'app warm' : 'app')
+        : 'app'}>
+        <main>
+          <div className='search-box'>
+            <input
+              type="text"
+              className='search-bar'
+              placeholder='Search...'
+              list="city"
+              onChange={(e) => setQuery(e.target.value)}
+              onClick={(e) => setWeather([])}
+              value={query}
+              onKeyDown={(e) => searchWeather(e)}
+            />
+            <datalist id="city">
+              {searchData.map((item, index) =>
+                <option value={item} key={index}></option>)}
+            </datalist>
+            <div className='tooltip'>
+              <span className="tooltiptext tooltip-bottom">Current <br/> Location</span>
+              <FontAwesomeIcon icon={faLocationCrosshairs} className="dot fa-3x" onClick={() => currentSearch()} />
             </div>
           </div>
-        ) : (
+          {(typeof weather.main != "undefined") ? (
+            <div>
+              <div className="location-box">
+                <div className="location">{weather.name}, {weather.sys.country}</div>
+                <div className="date">{dateBuilder(new Date())}</div>
+              </div>
+              <div className="weather-box">
+                <div className="temp">
+                  {Math.round(weather.main.temp)}°C
+                </div>
+                <div className="weather"> {weather.weather[0].main}</div>
+              </div>
+            </div>
+          ) : (
             <div className="empty">
-            Enter the weather.
-          </div>)}
-      </main>
-    </div>
+              Enter the weather.
+            </div>)}
+          {isLoading &&
+            <div className='progress'>
+              <CircularProgress size={100} />
+            </div>
+          }
+        </main>
+      </div>
+    </>
   );
 }
 

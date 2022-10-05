@@ -1,4 +1,6 @@
 import React from 'react';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTemperatureThreeQuarters, faCloud, faWind, faDroplet} from "@fortawesome/free-solid-svg-icons";
 
 const WeatherData = ({ weather }) => {
     const dateBuilder = (d) => {
@@ -25,10 +27,30 @@ const WeatherData = ({ weather }) => {
             </div>
             <div className="weather-box">
                 <div className="temp">
-                    <img src={process.env.PUBLIC_URL + `/img/${weather.weather[0].icon}.png`} alt="weather" className='weather-icon'/>
+                    <img src={process.env.PUBLIC_URL + `/img/${weather.weather[0].icon}.png`} alt="weather" className='weather-icon' />
                     {Math.round(weather.main.temp)}°C
                 </div>
                 {/* <div className="weather"> {weather.weather[0].main}</div> */}
+            </div>
+            <div className='weather-other-box'>
+                <ul>
+                    <li>
+                        <FontAwesomeIcon icon={faDroplet} className='weather-icon-mini' />
+                        {weather.main.humidity}%
+                    </li>
+                    <li>
+                        <FontAwesomeIcon icon={faCloud} className='weather-icon-mini' />
+                        {weather.clouds.all}%
+                    </li>
+                    <li>
+                        <FontAwesomeIcon icon={faTemperatureThreeQuarters} className='weather-icon-mini' />
+                        {Math.round(weather.main.temp)}°C
+                    </li>
+                    <li>
+                        <FontAwesomeIcon icon={faWind} className='weather-icon-mini' />
+                        {weather.wind.speed}m/s
+                    </li>
+                </ul>
             </div>
         </div>
     );

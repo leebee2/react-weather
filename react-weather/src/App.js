@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faLocationCrosshairs } from "@fortawesome/free-solid-svg-icons";
-import CircularProgress from '@material-ui/core/CircularProgress';
+import Progress from './Components/Progress';
+import SearchBar from './Components/SearchBar';
 
 const api = {
   key: 'ca19fef0c6e3e329aeb70050d11e3888',
@@ -9,24 +8,25 @@ const api = {
 }
 
 function App() {
-  const [query, setQuery] = useState('');
   const [weather, setWeather] = useState({});
   const [searchData, setSearchData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const searchWeather = (e) => {
-    if (e.key == "Enter") {
-      setIsLoading(true);
-      geoLocation();
-    }
-  }
+  useEffect(() => {
+    let citySearch = localStorage.getItem('citySearch')
+    let search = citySearch == null ? [] : JSON.parse(citySearch);
+
+    setSearchData(search);
+  }, [])
+
 
   /**
    * 도시 이름으로 바로 날씨 정보를 받아올 수 없어서 
    * 위도 경도를 먼저 받고 실행해야함
    */
-  const geoLocation = async () => {
+  const geoLocation = async (query) => {
     try {
+      setIsLoading(true);
       let response = await fetch(`${api.baseUrl}geo/1.0/direct?q=${query}&appid=${api.key}`)
       let data = await response.json();
 
@@ -34,7 +34,7 @@ function App() {
         let lat = data[0].lat;
         let lon = data[0].lon;
 
-        getSearchWeather(lat, lon);
+        getSearchWeather(lat, lon, query);
       }
     } catch (error) {
       console.log(error);
@@ -54,9 +54,9 @@ function App() {
       setWeather(result);
       setIsLoading(false);
 
-      if (location == undefined) 
-        cityLocalStorageList();
-      
+      if (location !== "current")
+        cityLocalStorageList(location);
+
     } catch (error) {
       console.log(error);
     }
@@ -70,21 +70,8 @@ function App() {
       let lat = position.coords.latitude;
       let lon = position.coords.longitude;
 
-      getSearchWeather(lat, lon);
+      getSearchWeather(lat, lon, 'current');
     });
-  }
-
-  const cityLocalStorageList = () => {
-    let citySearch = localStorage.getItem('citySearch')
-    let search = citySearch == null ? [] : JSON.parse(citySearch);
-
-    search.push(query);
-    search = new Set(search);
-    search = [...search];
-
-    localStorage.setItem('citySearch', JSON.stringify(search));
-    setSearchData(search);
-    setQuery('');
   }
 
   const dateBuilder = (d) => {
@@ -101,12 +88,18 @@ function App() {
     return `${year} / ${month} / ${date}  ${day}`;
   }
 
-  useEffect(() => {
+  const cityLocalStorageList = (query) => {
     let citySearch = localStorage.getItem('citySearch')
     let search = citySearch == null ? [] : JSON.parse(citySearch);
 
+    search.push(query);
+    search = new Set(search);
+    search = [...search];
+
+    localStorage.setItem('citySearch', JSON.stringify(search));
     setSearchData(search);
-  }, [])
+  }
+
 
   return (
     <>
@@ -114,26 +107,12 @@ function App() {
         (weather.main.temp > 16 ? 'app warm' : 'app')
         : 'app'}>
         <main>
-          <div className='search-box'>
-            <input
-              type="text"
-              className='search-bar'
-              placeholder='Search...'
-              list="city"
-              onChange={(e) => setQuery(e.target.value)}
-              onClick={(e) => setWeather([])}
-              value={query}
-              onKeyDown={(e) => searchWeather(e)}
-            />
-            <datalist id="city">
-              {searchData.map((item, index) =>
-                <option value={item} key={index}></option>)}
-            </datalist>
-            <div className='tooltip'>
-              <span className="tooltiptext tooltip-bottom">Current <br/> Location</span>
-              <FontAwesomeIcon icon={faLocationCrosshairs} className="dot fa-3x" onClick={() => currentSearch()} />
-            </div>
-          </div>
+          <SearchBar
+            geoLocation={geoLocation}
+            currentSearch={currentSearch}
+            searchData={searchData}
+            setWeather={setWeather}
+          />
           {(typeof weather.main != "undefined") ? (
             <div>
               <div className="location-box">
@@ -151,11 +130,7 @@ function App() {
             <div className="empty">
               Enter the weather.
             </div>)}
-          {isLoading &&
-            <div className='progress'>
-              <CircularProgress size={100} />
-            </div>
-          }
+          {isLoading && <Progress open={true} close={true} />}
         </main>
       </div>
     </>
